@@ -68,7 +68,9 @@ def lce_forward(
     )
     return_dict = return_dict if return_dict is not None else self.config.use_return_dict
     output_router_logits = (
-        output_router_logits if output_router_logits is not None else self.config.text_config.output_router_logits
+        output_router_logits
+        if output_router_logits is not None
+        else getattr(self.config.text_config, "output_router_logits", True)
     )
 
     tokens_count = attention_mask.sum().item()
@@ -282,12 +284,14 @@ def lce_forward(
 
     # MoE auxiliary loss handling
     aux_loss = None
-    if output_router_logits and hasattr(outputs, "router_logits"):
+    router_logits = getattr(outputs, "router_logits", None)
+    if output_router_logits and router_logits is not None:
+        aux_loss_mask = None if use_rmpad else attention_mask
         aux_loss = load_balancing_loss_func(
-            outputs.router_logits,
+            router_logits,
             self.num_experts,
             self.num_experts_per_tok,
-            attention_mask,
+            aux_loss_mask,
         )
         if labels is not None and loss is not None:
             # Add auxiliary loss weighted by router_aux_loss_coef

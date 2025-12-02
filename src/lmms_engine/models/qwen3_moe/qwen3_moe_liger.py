@@ -69,7 +69,7 @@ def lce_forward(
 
     output_attentions = output_attentions if output_attentions is not None else self.config.output_attentions
     output_router_logits = (
-        output_router_logits if output_router_logits is not None else self.config.output_router_logits
+        output_router_logits if output_router_logits is not None else getattr(self.config, "output_router_logits", True)
     )
 
     output_hidden_states = (
@@ -144,12 +144,14 @@ def lce_forward(
             loss = self.loss_function(logits, labels, self.vocab_size, **kwargs)
 
     aux_loss = None
-    if output_router_logits:
+    router_logits = getattr(outputs, "router_logits", None)
+    if output_router_logits and router_logits is not None:
+        aux_loss_mask = None if use_rmpad else attention_mask
         aux_loss = load_balancing_loss_func(
-            outputs.router_logits,
+            router_logits,
             self.num_experts,
             self.num_experts_per_tok,
-            attention_mask,
+            aux_loss_mask,
         )
         if labels is not None:
             loss += self.router_aux_loss_coef * aux_loss.to(loss.device)  # make sure to reside in the same device
@@ -161,5 +163,5 @@ def lce_forward(
         past_key_values=outputs.past_key_values,
         hidden_states=outputs.hidden_states,
         attentions=outputs.attentions,
-        router_logits=None,  # Current always None
+        router_logits=router_logits,
     )
