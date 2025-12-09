@@ -1,7 +1,6 @@
 <div align="center">
 
-LMMs-Engine
-===========================
+<img width="2816" height="1157" alt="Gemini_Generated_Image_s42giss42giss42g" src="https://github.com/user-attachments/assets/3c727b3d-4710-4f92-af95-c8e29dc6ac3e" />
 
 <h4>A simple, unified multimodal models training engine. Lean, flexible, and built for hacking at scale.</h4>
 
