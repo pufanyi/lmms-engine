@@ -63,7 +63,7 @@ torchrun --nproc_per_node=${NGPUS} \
   --master_addr=127.0.0.1 \
   --master_port=12355 \
   -m lmms_engine.launch.cli \
-  config_yaml=examples/qwen3_vl/example_config.yaml
+  config_yaml=examples/qwen3_vl/2b-test.yaml
 
 ################################################################################
 # MULTI-NODE TRAINING:
